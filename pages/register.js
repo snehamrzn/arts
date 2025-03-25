@@ -1,34 +1,24 @@
 import { Card, Form, Alert, Button } from "react-bootstrap";
-import { getToken, registerUser } from "@/lib/authenticate";
+import { registerUser } from "@/lib/authenticate";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import useSWR from "swr";
 
-export default function Register(props) {
+export default function Register() {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [warning, setWarning] = useState("");
   const router = useRouter();
 
-  const fetcher = (url) =>
-    fetch(url, { headers: { Authorization: `JWT ${getToken()}` } }).then(
-      (res) => res.json()
-    );
-
-  const { data, error } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/favorites`,
-    fetcher
-  );
-
   async function handleSubmit(e) {
     e.preventDefault();
+    setWarning(""); // Clear any previous warnings
+
     try {
       await registerUser(user, password, password2);
-      await updateAtoms(); // Ensure data is set before redirecting
-      router.push("/login");
+      router.push("/login"); // Redirect to login after successful registration
     } catch (err) {
-      setWarning(err.message);
+      setWarning(err.message); // Show error message if registration fails
     }
   }
 
@@ -36,19 +26,21 @@ export default function Register(props) {
     <>
       <Card bg="light">
         <Card.Body>
-          <h2>Register</h2>Register for an account:
+          <h2>Register</h2>
+          <p>Register for an account:</p>
         </Card.Body>
       </Card>
       <br />
       <Form onSubmit={handleSubmit}>
         <Form.Group>
-          <Form.Label>User:</Form.Label>
+          <Form.Label>Username:</Form.Label>
           <Form.Control
             type="text"
             value={user}
             id="userName"
             name="userName"
             onChange={(e) => setUser(e.target.value)}
+            required
           />
         </Form.Group>
         <br />
@@ -60,8 +52,10 @@ export default function Register(props) {
             id="password"
             name="password"
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </Form.Group>
+        <br />
         <Form.Group>
           <Form.Label>Confirm Password:</Form.Label>
           <Form.Control
@@ -70,6 +64,7 @@ export default function Register(props) {
             id="confirmPassword"
             name="confirmPassword"
             onChange={(e) => setPassword2(e.target.value)}
+            required
           />
         </Form.Group>
         <br />
