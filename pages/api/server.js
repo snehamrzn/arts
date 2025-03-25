@@ -5,7 +5,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 dotenv.config();
-const userService = require("./user-service.js");
+const userService = require("./user.js");
 const jwt = require("jsonwebtoken");
 
 const passport = require("passport");
@@ -13,27 +13,20 @@ const passportJWT = require("passport-jwt");
 
 const HTTP_PORT = process.env.PORT || 8080;
 
-passport.use(strategy);
-app.use(express.json());
-app.use(cors());
-app.use(passport.initialize());
-
 let ExtractJwt = passportJWT.ExtractJwt;
 let JwtStrategy = passportJWT.Strategy;
 
-// Configure its options
+// Configure JWT Strategy options
 let jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
   secretOrKey: process.env.JWT_SECRET,
 };
 
+// Define the JWT authentication strategy
 let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
   console.log("payload received", jwt_payload);
 
   if (jwt_payload) {
-    // The following will ensure that all routes using
-    // passport.authenticate have a req.user._id, req.user.userName,
-    // that matches the request payload data
     next(null, {
       _id: jwt_payload._id,
       userName: jwt_payload.userName,
@@ -43,6 +36,12 @@ let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
   }
 });
 
+passport.use(strategy);
+
+app.use(express.json());
+app.use(cors());
+app.use(passport.initialize());
+
 app.post("/api/user/register", (req, res) => {
   userService
     .registerUser(req.body)
@@ -50,7 +49,7 @@ app.post("/api/user/register", (req, res) => {
       res.json({ message: msg });
     })
     .catch((msg) => {
-      res.status(422).json({ message: msg });
+      return res.status(422).json({ message: msg });
     });
 });
 
@@ -64,15 +63,16 @@ app.post("/api/user/login", (req, res) => {
       };
 
       let token = jwt.sign(payload, jwtOptions.secretOrKey);
+
       res.json({ message: "login successful", token: token });
     })
     .catch((msg) => {
-      res.status(422).json({ message: msg });
+      return res.status(422).json({ message: msg });
     });
 });
 
 app.get(
-  "/api/user/favorites",
+  "/api/user/favourites",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userService
@@ -81,13 +81,13 @@ app.get(
         res.json(data);
       })
       .catch((msg) => {
-        res.status(422).json({ error: msg });
+        return res.status(422).json({ error: msg });
       });
   }
 );
 
 app.put(
-  "/api/user/favorites/:id",
+  "/api/user/favourites/:id",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userService
@@ -96,13 +96,13 @@ app.put(
         res.json(data);
       })
       .catch((msg) => {
-        res.status(422).json({ error: msg });
+        return res.status(422).json({ error: msg });
       });
   }
 );
 
 app.delete(
-  "/api/user/favorites/:id",
+  "/api/user/favourites/:id",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userService
@@ -111,7 +111,7 @@ app.delete(
         res.json(data);
       })
       .catch((msg) => {
-        res.status(422).json({ error: msg });
+        return res.status(422).json({ error: msg });
       });
   }
 );
@@ -126,7 +126,7 @@ app.get(
         res.json(data);
       })
       .catch((msg) => {
-        res.status(422).json({ error: msg });
+        return res.status(422).json({ error: msg });
       });
   }
 );
@@ -141,7 +141,7 @@ app.put(
         res.json(data);
       })
       .catch((msg) => {
-        res.status(422).json({ error: msg });
+        return res.status(422).json({ error: msg });
       });
   }
 );
@@ -156,19 +156,11 @@ app.delete(
         res.json(data);
       })
       .catch((msg) => {
-        res.status(422).json({ error: msg });
+        return res.status(422).json({ error: msg });
       });
   }
 );
 
-userService
-  .connect()
-  .then(() => {
-    app.listen(HTTP_PORT, () => {
-      console.log("API listening on: " + HTTP_PORT);
-    });
-  })
-  .catch((err) => {
-    console.log("unable to start the server: " + err);
-    process.exit();
-  });
+app.listen(HTTP_PORT, () => {
+  console.log(`Server is running on port ${HTTP_PORT}`);
+});

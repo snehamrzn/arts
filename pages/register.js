@@ -67,8 +67,8 @@ export default function Register(props) {
           <Form.Control
             type="password"
             value={password2}
-            id="password"
-            name="password"
+            id="confirmPassword"
+            name="confirmPassword"
             onChange={(e) => setPassword2(e.target.value)}
           />
         </Form.Group>
