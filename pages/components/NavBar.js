@@ -5,63 +5,73 @@ import { useState } from "react";
 import { atom, useAtom } from "jotai";
 import { searchHistoryAtom } from "@/store";
 import Link from "next/link";
+import { addToHistory } from "@/lib/userData";
+import { readToken, removeToken } from "@/lib/authenticate";
 
 export default function NavBar() {
+  const token = readToken();
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchField, setSearchField] = useState("");
-  //   const { search } = router.query;
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
 
-  const handleSubmit = (e) => {
+  function logout() {
+    setIsExpanded(false);
+    removeToken();
+    router.push("/login");
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (searchField.trim()) {
       const queryString = `title=true&q=${encodeURIComponent(searchField)}`;
-      setSearchHistory((current) => [...current, queryString]);
+      const updatedHistory = await addToHistory(queryString);
+      setSearchHistory(updatedHistory);
       router.push(`/artwork?${queryString}`);
     }
   };
 
   const handleLinkClick = () => {
-    setIsExpanded(false); // Collapse navbar when any link is clicked
+    setIsExpanded(false);
   };
 
   return (
-    <>
-      <Navbar
-        expand="lg"
-        className="bg-body-tertiary"
-        data-bs-theme="dark"
-        expanded={isExpanded}
-      >
-        <Container>
-          <Navbar.Brand href="#">Sneha Maharjan</Navbar.Brand>
-          <Navbar.Toggle
-            aria-controls="navbarScroll"
-            onClick={() => setIsExpanded(!isExpanded)}
-          />
-          <Navbar.Collapse id="navbarScroll">
-            <Nav
-              className="me-auto my-2 my-lg-0"
-              style={{ maxHeight: "100px" }}
-              navbarScroll
-            >
-              <Link href="/" passHref onClick={handleLinkClick} legacyBehavior>
-                <Nav.Link active={router.pathname === "/"}>Home</Nav.Link>
-              </Link>
-
-              <Link
-                href="/search"
-                passHref
+    <Navbar
+      expand="lg"
+      className="bg-body-tertiary"
+      data-bs-theme="dark"
+      expanded={isExpanded}
+    >
+      <Container>
+        <Navbar.Brand href="#">Sneha Maharjan</Navbar.Brand>
+        <Navbar.Toggle
+          aria-controls="navbarScroll"
+          onClick={() => setIsExpanded(!isExpanded)}
+        />
+        <Navbar.Collapse id="navbarScroll">
+          <Nav className="me-auto my-2 my-lg-0" navbarScroll>
+            <Link href="/" passHref legacyBehavior>
+              <Nav.Link
+                active={router.pathname === "/"}
                 onClick={handleLinkClick}
-                legacyBehavior
               >
-                <Nav.Link active={router.pathname === "/search"}>
+                Home
+              </Nav.Link>
+            </Link>
+
+            {token && (
+              <Link href="/search" passHref legacyBehavior>
+                <Nav.Link
+                  active={router.pathname === "/search"}
+                  onClick={handleLinkClick}
+                >
                   Advanced Search
                 </Nav.Link>
               </Link>
-            </Nav>
-            &nbsp;
+            )}
+          </Nav>
+
+          {token && (
             <Form className="d-flex" onSubmit={handleSubmit}>
               <Form.Control
                 type="search"
@@ -74,9 +84,11 @@ export default function NavBar() {
                 Search
               </Button>
             </Form>
-            &nbsp;
-            <Nav>
-              <NavDropdown title="UserName" id="basic-nav-dropdown">
+          )}
+
+          <Nav>
+            {token ? (
+              <NavDropdown title={token.userName} id="basic-nav-dropdown">
                 <Link href="/favorites" passHref legacyBehavior>
                   <NavDropdown.Item active={router.pathname === "/favorites"}>
                     Favorites
@@ -87,13 +99,32 @@ export default function NavBar() {
                     History
                   </NavDropdown.Item>
                 </Link>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
               </NavDropdown>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-
-      <br />
-    </>
+            ) : (
+              <Nav className="ms-auto">
+                <Link href="/register" passHref legacyBehavior>
+                  <Nav.Link
+                    active={router.pathname === "/register"}
+                    onClick={handleLinkClick}
+                  >
+                    Register
+                  </Nav.Link>
+                </Link>
+                <Link href="/login" passHref legacyBehavior>
+                  <Nav.Link
+                    active={router.pathname === "/login"}
+                    onClick={handleLinkClick}
+                  >
+                    Login
+                  </Nav.Link>
+                </Link>
+              </Nav>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 }

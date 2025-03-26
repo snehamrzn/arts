@@ -4,6 +4,7 @@ import { Button, Card } from "react-bootstrap";
 import { useAtom } from "jotai";
 import { favoritesAtom } from "@/store";
 import { useState, useEffect } from "react";
+import { addToFavorite, removeFromFavorite } from "@/lib/userData";
 
 export default function ArtworkCardDetail({ objectID }) {
   const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -14,12 +15,10 @@ export default function ArtworkCardDetail({ objectID }) {
     fetcher
   );
   const [favoritesList, setFavoritesList] = useAtom(favoritesAtom);
-  const [showAdded, setShowAdded] = useState(true);
+  const [showAdded, setShowAdded] = useState(false);
 
   useEffect(() => {
-    // Check if the artwork is already in the favorites list
-    setShowAdded(favoritesList.includes(objectID));
-    // console.log(showAdded);
+    setShowAdded(favoritesList?.includes(objectID));
   }, [favoritesList, objectID]);
 
   if (error) {
@@ -29,18 +28,13 @@ export default function ArtworkCardDetail({ objectID }) {
     return null;
   }
 
-  function favoritesClicked() {
-    //if (!objectID) return;
+  async function favoritesClicked() {
     if (showAdded) {
-      // Remove the artwork from the favorites list
-      setFavoritesList((current) => current.filter((fav) => fav !== objectID));
-      setShowAdded(false);
+      setFavoritesList(await removeFromFavorite(objectID));
     } else {
-      // Add the artwork to the favorites list
-      setFavoritesList((current) => [...current, objectID]);
-      setShowAdded(true);
-      console.log(favoritesList);
+      setFavoritesList(await addToFavorite(objectID));
     }
+    setShowAdded(!showAdded);
   }
   console.log(data);
   return (

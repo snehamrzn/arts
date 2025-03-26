@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import { atom, useAtom } from "jotai";
 import { searchHistoryAtom } from "@/store";
+import { addToHistory } from "@/lib/userData";
 
 export default function Search() {
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
@@ -13,13 +14,15 @@ export default function Search() {
     formState: { errors },
   } = useForm();
 
-  function submitForm(data) {
+  async function submitForm(data) {
     let queryString = `${data.searchBy}=true`;
     if (data.geoLocation) queryString += `&geoLocation=${data.geoLocation}`;
     if (data.medium) queryString += `&medium=${data.medium}`;
     queryString += `&isOnView=${data.isOnView}&isHighlight=${data.isHighlight}&q=${data.q}`;
 
-    setSearchHistory((current) => [...current, queryString]);
+    const updatedHistory = await addToHistory(queryString);
+
+    setSearchHistory(updatedHistory);
     console.log("Search History:", searchHistory);
 
     router.push(`/artwork?${queryString}`);

@@ -13,6 +13,12 @@ const passportJWT = require("passport-jwt");
 
 const HTTP_PORT = process.env.PORT || 8080;
 
+passport.use(strategy);
+
+app.use(express.json());
+app.use(cors());
+app.use(passport.initialize());
+
 let ExtractJwt = passportJWT.ExtractJwt;
 let JwtStrategy = passportJWT.Strategy;
 
@@ -35,12 +41,6 @@ let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
     next(null, false);
   }
 });
-
-passport.use(strategy);
-
-app.use(express.json());
-app.use(cors());
-app.use(passport.initialize());
 
 app.post("/api/user/register", (req, res) => {
   userService

@@ -3,9 +3,12 @@ import { favoritesAtom } from "@/store";
 import { Row, Col, Card } from "react-bootstrap";
 import ArtworkCard from "./components/ArtworkCard";
 import React from "react";
+import { getToken } from "@/lib/authenticate";
 
 export default function Favorites() {
   const [favoritesList] = useAtom(favoritesAtom);
+
+  if (!favoritesList) return null;
 
   console.log("Favorites List:", favoritesList);
   return (

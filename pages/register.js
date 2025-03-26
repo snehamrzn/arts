@@ -12,7 +12,7 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setWarning(""); // Clear any previous warnings
+    setWarning("");
 
     try {
       await registerUser(user, password, password2);

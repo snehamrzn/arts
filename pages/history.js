@@ -5,10 +5,13 @@ import { useRouter } from "next/router";
 import { Card, Button } from "react-bootstrap";
 import { ListGroup } from "react-bootstrap";
 import styles from "@/styles/History.module.css";
+import { removeFromHistory } from "@/lib/userData";
 
 export default function History() {
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
   const router = useRouter();
+
+  if (!searchHistory) return null;
 
   let parsedHistory = [];
 
@@ -22,13 +25,12 @@ export default function History() {
     router.push(`/artwork?${searchHistory[index]}`);
   }
 
-  function removeHistoryClicked(e, index) {
-    e.stopPropagation(); // stop the event from trigging other events
-    setSearchHistory((current) => {
-      let x = [...current];
-      x.splice(index, 1);
-      return x;
-    });
+  async function removeHistoryClicked(e, index) {
+    e.stopPropagation(); // stop the event from triggering other events
+    // Call removeHistory API function to remove the history item
+    await removeHistory(searchHistory[index]);
+    // Update the atom with the new history after removing an item
+    setSearchHistory(await removeFromHistory(searchHistory[index]));
   }
 
   return (

@@ -2,7 +2,7 @@ import { Card, Form, Alert, Button } from "react-bootstrap";
 import { getToken, authenticateUser } from "@/lib/authenticate";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import useSWR from "swr";
+
 import { useAtom } from "jotai";
 import { favoritesAtom, searchHistoryAtom } from "@/store";
 import { getFavorites, getHistory } from "@/lib/userData";
@@ -15,16 +15,6 @@ export default function Login(props) {
 
   const [favoritesList, setFavoritesList] = useAtom(favoritesAtom);
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
-
-  const fetcher = (url) =>
-    fetch(url, { headers: { Authorization: `JWT ${getToken()}` } }).then(
-      (res) => res.json()
-    );
-
-  const { data, error } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_URL}/favorites`,
-    fetcher
-  );
 
   async function updateAtoms() {
     setFavoritesList(await getFavorites());

@@ -1,6 +1,7 @@
 // import "bootstrap/dist/css/bootstrap.min.css";
 import "bootswatch/dist/Sketchy/bootstrap.min.css";
 import Layout from "./components/Layout.js";
+import RouteGuard from "./components/RouteGuard.js";
 
 import { SWRConfig } from "swr";
 
@@ -16,9 +17,11 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <SWRConfig value={{ fetcher }}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <RouteGuard>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </RouteGuard>
       </SWRConfig>
     </>
   );
