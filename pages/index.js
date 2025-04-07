@@ -48,7 +48,7 @@ export default function Home() {
             encyclopedic collections of musical instruments, costumes, and
             accessories, as well as antique weapons and armor from around the
             world. Several notable interiors, ranging from 1st-century Rome
-            through modern American design, are installed in its galleries. Test
+            through modern American design, are installed in its galleries.
           </p>
         </Col>
         <Col lg={6}>
