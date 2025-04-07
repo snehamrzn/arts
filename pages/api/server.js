@@ -3,21 +3,14 @@ const app = express();
 
 const cors = require("cors");
 const dotenv = require("dotenv");
-
-dotenv.config();
 const userService = require("./user.js");
 const jwt = require("jsonwebtoken");
-
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
 
+dotenv.config(); // Ensure .env is loaded
+
 const HTTP_PORT = process.env.PORT || 8080;
-
-passport.use(strategy);
-
-app.use(express.json());
-app.use(cors());
-app.use(passport.initialize());
 
 let ExtractJwt = passportJWT.ExtractJwt;
 let JwtStrategy = passportJWT.Strategy;
@@ -25,7 +18,7 @@ let JwtStrategy = passportJWT.Strategy;
 // Configure JWT Strategy options
 let jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
-  secretOrKey: process.env.JWT_SECRET,
+  secretOrKey: process.env.JWT_SECRET, // Secret from .env file
 };
 
 // Define the JWT authentication strategy
@@ -42,6 +35,14 @@ let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
   }
 });
 
+// Set the strategy after defining it
+passport.use(strategy);
+
+app.use(express.json());
+app.use(cors());
+app.use(passport.initialize());
+
+// Routes and their logic
 app.post("/api/user/register", (req, res) => {
   userService
     .registerUser(req.body)
@@ -62,7 +63,7 @@ app.post("/api/user/login", (req, res) => {
         userName: user.userName,
       };
 
-      let token = jwt.sign(payload, jwtOptions.secretOrKey);
+      let token = jwt.sign(payload, jwtOptions.secretOrKey); // Sign token with secret
 
       res.json({ message: "login successful", token: token });
     })
@@ -71,6 +72,7 @@ app.post("/api/user/login", (req, res) => {
     });
 });
 
+// Protected Routes
 app.get(
   "/api/user/favourites",
   passport.authenticate("jwt", { session: false }),
