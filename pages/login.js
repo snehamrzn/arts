@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 
 import { useAtom } from "jotai";
-import { favoritesAtom, searchHistoryAtom } from "@/store";
+import { favouritesAtom, searchHistoryAtom } from "@/store";
 import { getFavorites, getHistory } from "@/lib/userData";
 
 export default function Login(props) {
@@ -13,11 +13,11 @@ export default function Login(props) {
   const [warning, setWarning] = useState("");
   const router = useRouter();
 
-  const [favoritesList, setFavoritesList] = useAtom(favoritesAtom);
+  const [favouritesList, setFavouritesList] = useAtom(favouritesAtom);
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
 
   async function updateAtoms() {
-    setFavoritesList(await getFavorites());
+    setFavouritesList(await getFavorites());
     setSearchHistory(await getHistory());
   }
 

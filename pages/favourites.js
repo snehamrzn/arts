@@ -1,21 +1,21 @@
 import { useAtom } from "jotai";
-import { favoritesAtom } from "@/store";
+import { favouritesAtom } from "@/store";
 import { Row, Col, Card } from "react-bootstrap";
 import ArtworkCard from "./components/ArtworkCard";
 import React from "react";
 import { getToken } from "@/lib/authenticate";
 
 export default function Favorites() {
-  const [favoritesList] = useAtom(favoritesAtom);
+  const [favouritesList] = useAtom(favouritesAtom);
 
-  if (!favoritesList) return null;
+  if (!favouritesList) return null;
 
-  console.log("Favorites List:", favoritesList);
+  console.log("Favourites List:", favoritesList);
   return (
     <>
       <Row className="gy-4">
-        {favoritesList.length > 0 ? (
-          favoritesList.map((currentObjectID) => (
+        {favouritesList.length > 0 ? (
+          favouritesList.map((currentObjectID) => (
             <Col lg={3} key={currentObjectID}>
               <ArtworkCard objectID={currentObjectID} />
             </Col>
