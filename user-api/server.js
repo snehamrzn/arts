@@ -1,28 +1,27 @@
-const express = require("express");
-const app = express();
-
-const cors = require("cors");
 const dotenv = require("dotenv");
-const userService = require("./user-service.js");
+dotenv.config();
+
+const express = require("express");
+const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
 
-dotenv.config(); // Ensure .env is loaded
+const userService = require("./user-service.js");
+
+const app = express();
 
 const HTTP_PORT = process.env.PORT || 8080;
 
-let ExtractJwt = passportJWT.ExtractJwt;
-let JwtStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
+const StrategyJWT = passportJWT.Strategy;
 
-// Configure JWT Strategy options
-let jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
-  secretOrKey: process.env.JWT_SECRET, // Secret from .env file
+const jwtOptions = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme("jwt"),
+  secretOrKey: process.env.JWT_SECRET,
 };
 
-// Define the JWT authentication strategy
-let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
+let strategy = new StrategyJWT(jwtOptions, (jwt_payload, next) => {
   console.log("payload received", jwt_payload);
 
   if (jwt_payload) {
@@ -35,22 +34,19 @@ let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
   }
 });
 
-// Set the strategy after defining it
 passport.use(strategy);
-
+app.use(passport.initialize());
 app.use(express.json());
 app.use(cors());
-app.use(passport.initialize());
 
-// Routes and their logic
 app.post("/api/user/register", (req, res) => {
   userService
     .registerUser(req.body)
     .then((msg) => {
-      res.json({ message: msg });
+      res.json({ message: msg, user: req.body });
     })
     .catch((msg) => {
-      return res.status(422).json({ message: msg });
+      res.status(422).json({ message: msg });
     });
 });
 
@@ -58,21 +54,22 @@ app.post("/api/user/login", (req, res) => {
   userService
     .checkUser(req.body)
     .then((user) => {
+      console.log("DEBUG");
+
       let payload = {
         _id: user._id,
         userName: user.userName,
       };
 
-      let token = jwt.sign(payload, jwtOptions.secretOrKey); // Sign token with secret
+      let token = jwt.sign(payload, jwtOptions.secretOrKey);
 
-      res.json({ message: "login successful", token: token });
+      res.json({ message: "login successful", token, user });
     })
     .catch((msg) => {
-      return res.status(422).json({ message: msg });
+      res.status(422).json({ message: msg });
     });
 });
 
-// Protected Routes
 app.get(
   "/api/user/favourites",
   passport.authenticate("jwt", { session: false }),
@@ -83,7 +80,7 @@ app.get(
         res.json(data);
       })
       .catch((msg) => {
-        return res.status(422).json({ error: msg });
+        res.status(422).json({ error: msg });
       });
   }
 );
@@ -98,7 +95,7 @@ app.put(
         res.json(data);
       })
       .catch((msg) => {
-        return res.status(422).json({ error: msg });
+        res.status(422).json({ error: msg });
       });
   }
 );
@@ -113,7 +110,7 @@ app.delete(
         res.json(data);
       })
       .catch((msg) => {
-        return res.status(422).json({ error: msg });
+        res.status(422).json({ error: msg });
       });
   }
 );
@@ -128,7 +125,7 @@ app.get(
         res.json(data);
       })
       .catch((msg) => {
-        return res.status(422).json({ error: msg });
+        res.status(422).json({ error: msg });
       });
   }
 );
@@ -143,7 +140,7 @@ app.put(
         res.json(data);
       })
       .catch((msg) => {
-        return res.status(422).json({ error: msg });
+        res.status(422).json({ error: msg });
       });
   }
 );
@@ -158,11 +155,19 @@ app.delete(
         res.json(data);
       })
       .catch((msg) => {
-        return res.status(422).json({ error: msg });
+        res.status(422).json({ error: msg });
       });
   }
 );
 
-app.listen(HTTP_PORT, () => {
-  console.log(`Server is running on port ${HTTP_PORT}`);
-});
+userService
+  .connect()
+  .then(() => {
+    app.listen(HTTP_PORT, () => {
+      console.log("API listening on: " + HTTP_PORT);
+    });
+  })
+  .catch((err) => {
+    console.log("unable to start the server: " + err);
+    process.exit();
+  });
