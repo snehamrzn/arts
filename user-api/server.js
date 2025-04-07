@@ -39,7 +39,13 @@ let strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
 passport.use(strategy);
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // frontend origin
+    credentials: true,
+  })
+);
+app.options("*", cors());
 app.use(passport.initialize());
 
 // Routes and their logic
