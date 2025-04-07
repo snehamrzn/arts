@@ -10,6 +10,13 @@ const passportJWT = require("passport-jwt");
 
 dotenv.config(); // Ensure .env is loaded
 
+app.use(
+  cors({
+    origin: "*", // or '*' for all origins (not recommended for production)
+    credentials: true,
+  })
+);
+
 const HTTP_PORT = process.env.PORT || 8080;
 
 let ExtractJwt = passportJWT.ExtractJwt;
