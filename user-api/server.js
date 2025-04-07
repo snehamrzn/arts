@@ -41,11 +41,12 @@ passport.use(strategy);
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000", // frontend origin
-    credentials: true,
+    origin: "*", // or "http://localhost:3000" or your frontend domain
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.options("*", cors());
+
 app.use(passport.initialize());
 
 // Routes and their logic
