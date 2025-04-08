@@ -1,5 +1,5 @@
 // import "bootstrap/dist/css/bootstrap.min.css";
-import "bootswatch/dist/Sketchy/bootstrap.min.css";
+import "bootswatch/dist/sketchy/bootstrap.min.css";
 import Layout from "./components/Layout.js";
 import RouteGuard from "./components/RouteGuard.js";
 
