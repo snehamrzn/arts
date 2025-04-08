@@ -28,7 +28,7 @@ export default function History() {
   async function removeHistoryClicked(e, index) {
     e.stopPropagation(); // stop the event from triggering other events
     // Call removeHistory API function to remove the history item
-    await removeHistory(searchHistory[index]);
+    await removeFromHistory(searchHistory[index]);
     // Update the atom with the new history after removing an item
     setSearchHistory(await removeFromHistory(searchHistory[index]));
   }

@@ -2,9 +2,9 @@ import useSWR from "swr";
 import Error from "next/error";
 import { Button, Card } from "react-bootstrap";
 import { useAtom } from "jotai";
-import { favoritesAtom } from "@/store";
+import { favouritesAtom } from "@/store";
 import { useState, useEffect } from "react";
-import { addToFavorite, removeFromFavorite } from "@/lib/userData";
+import { addToFavourite, removeFromFavourite } from "@/lib/userData";
 
 export default function ArtworkCardDetail({ objectID }) {
   const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -14,12 +14,12 @@ export default function ArtworkCardDetail({ objectID }) {
       : null,
     fetcher
   );
-  const [favoritesList, setFavoritesList] = useAtom(favoritesAtom);
+  const [favouritesList, setFavouritesList] = useAtom(favouritesAtom);
   const [showAdded, setShowAdded] = useState(false);
 
   useEffect(() => {
-    setShowAdded(favoritesList?.includes(objectID));
-  }, [favoritesList, objectID]);
+    setShowAdded(favouritesList?.includes(objectID));
+  }, [favouritesList, objectID]);
 
   if (error) {
     return <Error statusCode={error.status || 500} />;
@@ -28,11 +28,11 @@ export default function ArtworkCardDetail({ objectID }) {
     return null;
   }
 
-  async function favoritesClicked() {
+  async function favouritesClicked() {
     if (showAdded) {
-      setFavoritesList(await removeFromFavorite(objectID));
+      setFavouritesList(await removeFromFavourite(objectID));
     } else {
-      setFavoritesList(await addToFavorite(objectID));
+      setFavouritesList(await addToFavourite(objectID));
     }
     setShowAdded(!showAdded);
   }
@@ -88,7 +88,7 @@ export default function ArtworkCardDetail({ objectID }) {
             <br />
             <Button
               variant={showAdded ? "primary" : "outline-primary"}
-              onClick={favoritesClicked}
+              onClick={favouritesClicked}
             >
               {showAdded ? "Added to Favorites" : "Add to Favorites"}
             </Button>

@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 
 import { useAtom } from "jotai";
 import { favouritesAtom, searchHistoryAtom } from "@/store";
-import { getFavorites, getHistory } from "@/lib/userData";
+import { getFavourites, getHistory } from "@/lib/userData";
 
 export default function Login(props) {
   const [user, setUser] = useState("");
@@ -17,7 +17,7 @@ export default function Login(props) {
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
 
   async function updateAtoms() {
-    setFavouritesList(await getFavorites());
+    setFavouritesList(await getFavourites());
     setSearchHistory(await getHistory());
   }
 
@@ -26,7 +26,7 @@ export default function Login(props) {
     try {
       await authenticateUser(user, password);
       await updateAtoms(); // Ensure data is set before redirecting
-      router.push("/favorites");
+      router.push("/favourites");
     } catch (err) {
       setWarning(err.message);
     }

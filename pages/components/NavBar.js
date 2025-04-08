@@ -43,7 +43,8 @@ export default function NavBar() {
       expanded={isExpanded}
     >
       <Container>
-        <Navbar.Brand href="#">Sneha Maharjan</Navbar.Brand>
+        <Navbar.Brand href="#">{token ? token.userName : "Users"}</Navbar.Brand>
+
         <Navbar.Toggle
           aria-controls="navbarScroll"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -89,9 +90,9 @@ export default function NavBar() {
           <Nav>
             {token ? (
               <NavDropdown title={token.userName} id="basic-nav-dropdown">
-                <Link href="/favorites" passHref legacyBehavior>
-                  <NavDropdown.Item active={router.pathname === "/favorites"}>
-                    Favorites
+                <Link href="/favourites" passHref legacyBehavior>
+                  <NavDropdown.Item active={router.pathname === "/favourites"}>
+                    Favourites
                   </NavDropdown.Item>
                 </Link>
                 <Link href="/history" passHref legacyBehavior>
